@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""
+Telegram Monitor — user-account group chat listener.
+Stores all messages from chats the user participates in into SQLite.
+Usage:
+  python tg_monitor.py           # run daemon (listens for new messages)
+  python tg_monitor.py --test    # quick self test (connect + report chats)
+"""
+import asyncio
+import os
+import sqlite3
+import sys
+import time
+
+from telethon import TelegramClient, events
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Replace with your own credentials from https://my.telegram.org/apps
+API_ID = 12345678
+API_HASH = "your_api_hash_here"
+PHONE = "+1234567890"
+SESSION = os.path.join(BASE_DIR, "tg_monitor.session")
+DB_PATH = os.path.join(BASE_DIR, "tg_messages.db")
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS chats (
+    chat_id INTEGER PRIMARY KEY,
+    title TEXT,
+    kind TEXT DEFAULT 'group',
+    last_seen_at REAL
+);
+CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chat_id INTEGER NOT NULL,
+    chat_title TEXT,
+    message_id INTEGER,
+    sender_id INTEGER,
+    sender_name TEXT,
+    text TEXT,
+    date REAL,
+    is_reply INTEGER DEFAULT 0,
+    reply_to_msg_id INTEGER,
+    UNIQUE(chat_id, message_id)
+);
+CREATE INDEX IF NOT EXISTS idx_messages_chat_date ON messages(chat_id, date);
+CREATE INDEX IF NOT EXISTS idx_messages_date ON messages(date);
+"""
+
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db()
+    conn.executescript(SCHEMA)
+    conn.commit()
+    conn.close()
+
+
+def upsert_chat(conn, chat_id, title, kind="group"):
+    conn.execute(
+        """INSERT INTO chats (chat_id, title, kind, last_seen_at) VALUES (?,?,?,?)
+           ON CONFLICT(chat_id) DO UPDATE SET title=excluded.title, last_seen_at=excluded.last_seen_at""",
+        (chat_id, title or str(chat_id), kind, time.time()),
+    )
+    conn.commit()
+
+
+def save_message(conn, chat_id, chat_title, msg):
+    if msg.id is None:
+        return
+    sender_id = msg.sender_id if getattr(msg, "sender_id", None) else None
+    text = msg.text or msg.message or ""
+    if not text and getattr(msg, "media", None):
+        text = f"[媒体消息] {msg.media.__class__.__name__}"
+    date_ts = msg.date.timestamp() if msg.date else time.time()
+    is_reply = 1 if getattr(msg, "reply_to", None) else 0
+    reply_to = None
+    try:
+        if msg.reply_to and getattr(msg.reply_to, "reply_to_msg_id", None):
+            reply_to = msg.reply_to.reply_to_msg_id
+    except Exception:
+        pass
+    conn.execute(
+        """INSERT OR IGNORE INTO messages
+           (chat_id, chat_title, message_id, sender_id, sender_name, text, date, is_reply, reply_to_msg_id)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        (chat_id, chat_title, msg.id, sender_id, None, text, date_ts, is_reply, reply_to),
+    )
+    conn.commit()
+
+
+async def resolve_sender_names(client, conn, chat_id, msg):
+    """Best-effort: resolve sender name via client cache."""
+    try:
+        if msg.sender_id:
+            sender = await client.get_entity(msg.sender_id)
+            name = getattr(sender, "first_name", "") or ""
+            last = getattr(sender, "last_name", "") or ""
+            username = getattr(sender, "username", "") or ""
+            full = " ".join([name, last]).strip()
+            if not full:
+                full = username or str(msg.sender_id)
+            conn.execute(
+                "UPDATE messages SET sender_name=? WHERE chat_id=? AND message_id=? AND sender_name IS NULL",
+                (full, chat_id, msg.id),
+            )
+            conn.commit()
+    except Exception:
+        pass
+
+
+async def main(test_mode=False):
+    init_db()
+    client = TelegramClient(SESSION, API_ID, API_HASH)
+
+    if test_mode:
+        await client.start(phone=PHONE)
+        me = await client.get_me()
+        print(f"[OK] 已登录: {me.first_name} (@{me.username or '无'})")
+        dialogs = await client.get_dialogs()
+        groups = [d for d in dialogs if d.is_group or d.is_channel]
+        print(f"[OK] 共 {len(dialogs)} 个对话, 其中群组/频道 {len(groups)} 个:")
+        for d in groups[:30]:
+            print(f"  - {d.id}\t{d.title}")
+        await client.disconnect()
+        print("[TEST] 连接测试完成 ✓")
+        return
+
+    @client.on(events.NewMessage())
+    async def handler(event):
+        msg = event.message
+        chat = await event.get_chat()
+        chat_id = event.chat_id
+        chat_title = getattr(chat, "title", None) or getattr(chat, "first_name", None) or str(chat_id)
+        kind = "group"
+        if getattr(chat, "broadcast", False):
+            kind = "channel"
+        elif getattr(chat, "first_name", None):
+            kind = "private"
+        conn = get_db()
+        upsert_chat(conn, chat_id, chat_title, kind)
+        save_message(conn, chat_id, chat_title, msg)
+        asyncio.get_event_loop().create_task(resolve_sender_names(client, conn, chat_id, msg))
+        conn.close()
+
+    me = await client.start(phone=PHONE)
+    print(f"[MONITOR] 已启动 ✓ 账号: {me.first_name} (@{me.username or '无'})")
+    print(f"[MONITOR] 监听所有群聊消息，存入 {DB_PATH}")
+    print(f"[MONITOR] 按 Ctrl+C 停止")
+    await client.run_until_disconnected()
+
+
+if __name__ == "__main__":
+    test = "--test" in sys.argv
+    try:
+        asyncio.run(main(test_mode=test))
+    except KeyboardInterrupt:
+        print("\n[STOP] 已停止")
