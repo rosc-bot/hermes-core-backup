@@ -1,0 +1,27 @@
+host: ""
+port: 8317
+tls:
+  enable: false
+  cert: ""
+  key: ""
+remote-management:
+  allow-remote: true
+  secret-key: "$2a$10$ddEkdONrpvBejy.0qaM/5.aUC3WiuM0tWadk/vgbpvahvKKzAZ3jS"
+  disable-control-panel: false
+auth-dir: "/home/ubuntu/cliproxyapi/auths"
+api-keys:
+  - "sk-dd059ae71a1e4abc26668af9044fe7def647e0954ab7e93f"
+debug: false
+logging-to-file: true
+logs-max-total-size-mb: 256
+error-logs-max-files: 10
+usage-statistics-enabled: true
+proxy-url: ""
+passthrough-headers: false
+request-retry: 3
+max-retry-credentials: 0
+max-retry-interval: 30
+routing:
+  strategy: "round-robin"
+  session-affinity: false
+ws-auth: true

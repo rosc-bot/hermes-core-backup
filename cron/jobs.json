@@ -1,0 +1,160 @@
+{
+  "jobs": [
+    {
+      "id": "b591fdcb20d9",
+      "name": "每日安全检查和更新",
+      "prompt": "执行每日系统安全检查和漏洞修复任务。请按以下步骤操作：\n\n1. 检查系统安全更新：运行 apt list --upgradable 2>/dev/null，检查是否有安全更新可用\n2. 安装安全更新：如果有安全更新，运行 sudo apt-get upgrade -y 安装（只安装安全相关的更新，不进行 dist-upgrade）\n3. 检查 Hermes Agent 更新：运行 hermes update --check 检查是否有新版本\n4. 检查是否有可疑的 SUID 文件：find / -perm -4000 -type f 2>/dev/null 列出常见的 SUID 文件\n5. 检查系统日志是否有异常：查看 /var/log/auth.log 最近的失败登录尝试\n\n将以上所有检查结果和修复情况整理成清晰的中文报告推送给我。包括：发现了什么漏洞、修复了什么、更新了什么、还有什么需要注意的。\n\n注意：所有操作都要小心谨慎，不要执行破坏性命令。如果遇到不确定的情况，如实报告不要擅自操作。",
+      "skills": [
+        "hermes-agent"
+      ],
+      "skill": "hermes-agent",
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "custom",
+      "model_snapshot": "gpt-5.6-luna",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 1 * * *",
+        "display": "0 1 * * *"
+      },
+      "schedule_display": "0 1 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 6
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-08-14T12:33:04.335345+08:00",
+      "next_run_at": "2026-08-20T01:00:00+08:00",
+      "last_run_at": "2026-08-19T01:03:30.637580+08:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "telegram:8586984520",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "8586984520",
+        "chat_name": "如昔",
+        "thread_id": null,
+        "user_id": "8586984520"
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null,
+      "failure_streak": 0
+    },
+    {
+      "id": "51b8139f7578",
+      "name": "每日清理垃圾文件",
+      "prompt": "执行每日系统垃圾文件清理任务。请按以下步骤操作：\n\n1. 清理 apt 缓存：运行 sudo apt-get autoremove -y 和 sudo apt-get autoclean\n2. 清理 pip 缓存：运行 pip cache purge（如果存在）\n3. 清理系统日志旧文件：检查 /var/log/ 下超过 7 天的日志文件，列出它们的占用空间（不要删除）\n4. 清理 /tmp 目录中的旧文件（超过 7 天，列出但不删除）\n5. 清理 ~/.cache/ 中超过 30 天的缓存文件\n6. 检查磁盘使用情况：运行 df -h 查看各分区使用率\n7. 检查 /home/ubuntu 目录下最大的 10 个文件/目录：du -sh /home/ubuntu/* 2>/dev/null | sort -rh | head -10\n\n将清理结果整理成清晰的中文报告推送给我。包括：清理了多少空间、哪些文件被删除了、当前磁盘使用情况、是否有需要关注的磁盘空间问题。\n\n注意：安全第一，只清理明确安全的缓存和临时文件。不要删除任何用户数据文件。",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "custom",
+      "model_snapshot": "gpt-5.6-luna",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * *",
+        "display": "0 2 * * *"
+      },
+      "schedule_display": "0 2 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 6
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-08-14T12:33:04.716730+08:00",
+      "next_run_at": "2026-08-20T02:00:00+08:00",
+      "last_run_at": "2026-08-19T02:00:45.186036+08:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "telegram:8586984520",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "8586984520",
+        "chat_name": "如昔",
+        "thread_id": null,
+        "user_id": "8586984520"
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null,
+      "failure_streak": 0
+    },
+    {
+      "id": "9c67b31f3c51",
+      "name": "Hermes 自动检查并更新",
+      "prompt": "在北京时间每天 01:00 自动检查 Hermes Agent 是否有官方更新。先运行 `hermes update --check`；检测到更新后立即执行 `hermes update --yes --backup`，保留更新前备份。更新后运行 `hermes version` 与 `hermes doctor` 关键检查，并确保 `hermes-gateway.service`、`hermes-web-ui.service`、`cpa.service` 都正常运行；仅在确有必要时重启受更新影响的服务。严禁覆盖用户手动修改的配置或无关文件。没有更新时静默不投递；更新成功或失败时向本 Telegram 对话用中文简要报告版本、验证和服务状态，失败需说明关键错误。任务保持 model/provider 为 null，动态跟随当前默认模型与提供商。",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "custom",
+      "model_snapshot": "gpt-5.6-terra",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 1 * * *",
+        "display": "0 1 * * *"
+      },
+      "schedule_display": "0 1 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 2
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-08-17T01:06:08.451715+08:00",
+      "next_run_at": "2026-08-20T01:00:00+08:00",
+      "last_run_at": "2026-08-19T01:04:37.358157+08:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "origin",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "8586984520",
+        "chat_name": "如昔",
+        "thread_id": null,
+        "user_id": "8586984520"
+      },
+      "enabled_toolsets": [
+        "terminal",
+        "file"
+      ],
+      "workdir": null,
+      "fire_claim": null,
+      "failure_streak": 0
+    }
+  ],
+  "updated_at": "2026-08-19T02:00:45.186612+08:00"
+}
