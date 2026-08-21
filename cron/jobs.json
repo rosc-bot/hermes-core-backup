@@ -27,15 +27,15 @@
       "schedule_display": "0 1 * * *",
       "repeat": {
         "times": null,
-        "completed": 6
+        "completed": 8
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-08-14T12:33:04.335345+08:00",
-      "next_run_at": "2026-08-20T01:00:00+08:00",
-      "last_run_at": "2026-08-19T01:03:30.637580+08:00",
+      "next_run_at": "2026-08-22T01:00:00+08:00",
+      "last_run_at": "2026-08-21T01:02:33.125197+08:00",
       "last_status": "ok",
       "last_error": null,
       "last_delivery_error": null,
@@ -77,15 +77,15 @@
       "schedule_display": "0 2 * * *",
       "repeat": {
         "times": null,
-        "completed": 6
+        "completed": 8
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-08-14T12:33:04.716730+08:00",
-      "next_run_at": "2026-08-20T02:00:00+08:00",
-      "last_run_at": "2026-08-19T02:00:45.186036+08:00",
+      "next_run_at": "2026-08-22T02:00:00+08:00",
+      "last_run_at": "2026-08-21T02:03:38.537514+08:00",
       "last_status": "ok",
       "last_error": null,
       "last_delivery_error": null,
@@ -104,8 +104,8 @@
     },
     {
       "id": "9c67b31f3c51",
-      "name": "Hermes 自动检查并更新",
-      "prompt": "在北京时间每天 01:00 自动检查 Hermes Agent 是否有官方更新。先运行 `hermes update --check`；检测到更新后立即执行 `hermes update --yes --backup`，保留更新前备份。更新后运行 `hermes version` 与 `hermes doctor` 关键检查，并确保 `hermes-gateway.service`、`hermes-web-ui.service`、`cpa.service` 都正常运行；仅在确有必要时重启受更新影响的服务。严禁覆盖用户手动修改的配置或无关文件。没有更新时静默不投递；更新成功或失败时向本 Telegram 对话用中文简要报告版本、验证和服务状态，失败需说明关键错误。任务保持 model/provider 为 null，动态跟随当前默认模型与提供商。",
+      "name": "Hermes与Bemby自动检查更新",
+      "prompt": "在北京时间每天 01:00 自动执行系统与服务更新检查：\n1. 【Hermes 更新检查】：先运行 `hermes update --check`；若检测到更新则执行 `hermes update --yes --backup`。更新后检查版本与核心服务。\n2. 【Bemby 更新检查】：进入 `/home/ubuntu/Bemby` 执行 `git fetch && git rev-parse HEAD && git rev-parse @{u}`。若上游有更新，拉取代码并通过 `docker compose pull && docker compose up -d` 自动平滑更新容器并确认 `bemby-service` 状态。\n3. 【关键服务存活检查】：确保 `hermes-gateway.service`、`hermes-web-ui.service`、`cpa.service`、`bemby-service` (Docker) 都正常运行。\n4. 【报告规则】：若 Hermes 和 Bemby 均无更新且服务正常则保持静默；若发生更新（成功/失败）或服务异常，用中文向本 Telegram 对话简要汇报更新情况与服务状态。任务保持 model/provider 为 null，动态跟随当前默认模型。",
       "skills": [],
       "skill": null,
       "model": null,
@@ -127,15 +127,15 @@
       "schedule_display": "0 1 * * *",
       "repeat": {
         "times": null,
-        "completed": 2
+        "completed": 4
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-08-17T01:06:08.451715+08:00",
-      "next_run_at": "2026-08-20T01:00:00+08:00",
-      "last_run_at": "2026-08-19T01:04:37.358157+08:00",
+      "next_run_at": "2026-08-22T01:00:00+08:00",
+      "last_run_at": "2026-08-21T01:03:49.351423+08:00",
       "last_status": "ok",
       "last_error": null,
       "last_delivery_error": null,
@@ -156,5 +156,5 @@
       "failure_streak": 0
     }
   ],
-  "updated_at": "2026-08-19T02:00:45.186612+08:00"
+  "updated_at": "2026-08-21T10:28:57.153851+08:00"
 }
