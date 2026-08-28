@@ -68,7 +68,7 @@ cron:
 onboarding:
   seen:
     busy_input_prompt: true
-_config_version: 38
+_config_version: 39
 mcp_servers:
   hermes-studio-api:
     command: /home/ubuntu/.hermes/node/bin/node
@@ -134,25 +134,12 @@ custom_providers:
     model: deepseek-v4-flash
     api_mode: chat_completions
     models:
-      - sensenova-6.7-flash-lite
-      - deepseek-v4-flash
-      - glm-5.2
-      - sensenova-u1-fast
-      - sensenova-6.8-flash-lite
-  - name: ooioo.work
-    base_url: https://ooioo.work/v1
-    api_key: sk-eQLBGmNms8cxyRewefV5oRXAe3PFElZ19fL4DKhzI9zZd7VP
-    model: gpt-5.6-luna
-    api_mode: chat_completions
-    models:
-      gpt-5.3-codex-spark: {}
-      gpt-5.4-mini: {}
-      gpt-5.4: {}
-      codex-auto-review: {}
-      gpt-5.5: {}
-      gpt-5.6-terra: {}
-      gpt-5.6-luna: {}
-      gpt-5.6-sol: {}
+      sensenova-6.7-flash-lite: {}
+      deepseek-v4-flash: {}
+      glm-5.2: {}
+      sensenova-u1-fast: {}
+      sensenova-6.8-flash-lite: {}
+      sensenova-u1.5-lite: {}
     models_discovered: true
   - name: 免费
     base_url: https://sharellm.cn/v1
@@ -162,16 +149,16 @@ custom_providers:
     models:
       gpt-5.6-luna: {}
       deepseek-v4-pro: {}
-      LongCat-2.0: {}
       agnes-2.5-flash: {}
       deepseek-v4-flash: {}
       deepseek-v4-flash-0731: {}
+      deepseek-v4-flash-vision: {}
       deepseek-v4-pro-0813: {}
       dots3-note: {}
       glm-5: {}
       glm-5.2: {}
       glm-5.3: {}
-      gpt-5.6-sol: {}
+      glm-5.3-flash: {}
       gpt-5.6-terra: {}
       grok-4.5: {}
       grok-4.6: {}
@@ -180,39 +167,18 @@ custom_providers:
       kimi-k2.6: {}
       kimi-k3: {}
       laguna–s-2.1: {}
-      mimo-v2.5: {}
       minimax-m2.5: {}
       minimax-m2.7: {}
       minimax-m2.7-highspeed: {}
       minimax-m3: {}
+      muse-spark-1.2: {}
       nemotron-3-ultra: {}
       nemotron-3.5-lightning: {}
-      qwen3.6-plus: {}
-      qwen3.7-max: {}
       qwen3.7-plus: {}
-      qwen3.8-max: {}
+      qwen3.8-27b: {}
       sensenova-6.8-flash-lite: {}
       sensenova-u1-fast: {}
       step-3.7-flash: {}
-    models_discovered: true
-  - name: aihub.top
-    base_url: https://aihub.top/v1
-    api_key: sk-1146f7880dcd2ad4aa70ec9b9e1a1dee5042cc3652799f19c3ee40addcc03a61
-    model: gpt-5.6-luna
-    api_mode: chat_completions
-    models:
-      codex-auto-review: {}
-      gpt-5.3-codex-openai-compact: {}
-      gpt-5.3-codex-spark: {}
-      gpt-5.4: {}
-      gpt-5.4-mini: {}
-      gpt-5.4-openai-compact: {}
-      gpt-5.5: {}
-      gpt-5.5-openai-compact: {}
-      gpt-5.6-luna: {}
-      gpt-5.6-sol: {}
-      gpt-5.6-terra: {}
-      gpt-image-2: {}
     models_discovered: true
   - name: gemini
     base_url: http://127.0.0.1:8317/v1
@@ -220,12 +186,6 @@ custom_providers:
     model: gemini-3.6-flash-high
     api_mode: chat_completions
     models:
-      claude-opus-4-6-thinking: {}
-      gemini-3-flash-agent: {}
-      gemini-3.1-flash-image: {}
-      gemini-3.1-pro-low: {}
-      gemini-3.1-flash-lite: {}
-      gemini-3.5-flash-low: {}
       gemini-3.5-flash-extra-low: {}
       claude-sonnet-4-6: {}
       gemini-3.6-flash-high: {}
@@ -233,6 +193,12 @@ custom_providers:
       gemini-3-flash: {}
       gemini-pro-agent: {}
       gpt-oss-120b-medium: {}
+      claude-opus-4-6-thinking: {}
+      gemini-3-flash-agent: {}
+      gemini-3.1-flash-image: {}
+      gemini-3.1-pro-low: {}
+      gemini-3.1-flash-lite: {}
+      gemini-3.5-flash-low: {}
     models_discovered: true
   - name: true-sota.com
     base_url: https://true-sota.com/v1
@@ -240,19 +206,28 @@ custom_providers:
     model: gpt-5.6-terra
     api_mode: chat_completions
     models:
-      codex-auto-review: {}
-      gpt-4o-audio-preview: {}
-      gpt-4o-realtime-preview: {}
-      gpt-5.4: {}
-      gpt-5.4-2026-03-05: {}
-      gpt-5.4-mini: {}
-      gpt-5.5: {}
-      gpt-5.6: {}
       gpt-5.6-sol: {}
+      gpt-5.6: {}
       gpt-5.6-terra: {}
+      gpt-5.6-luna: {}
+      gpt-5.5: {}
+      gpt-5.4: {}
+      gpt-5.4-mini: {}
+      gpt-5.3-codex-spark: {}
+      codex-auto-review: {}
+      gpt-5.2: {}
       gpt-image-1: {}
       gpt-image-1.5: {}
       gpt-image-2: {}
+    models_discovered: true
+  - name: free.empero.org
+    base_url: http://free.empero.org/v1
+    api_key: free
+    model: qwen3.8-flash
+    api_mode: chat_completions
+    models:
+      glm-5.3-flash: {}
+      qwen3.8-flash: {}
     models_discovered: true
 platforms:
   telegram:

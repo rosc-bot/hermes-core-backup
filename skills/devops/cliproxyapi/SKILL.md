@@ -19,6 +19,12 @@ metadata:
 - 配置 CPA 面板（/management.html）、管理密钥、开机自启。
 - 排查 CPA 端口不通、面板打不开、systemd 服务异常退出等问题。
 
+## 常见接口调用报错排查：API 验证/认证错误 (401/403)
+当你使用 Hermes 工具发起 `curl` 探测 CPA 提供给客户端的内部调用接口（例如 `/v1/images/generations`、`/v1/chat/completions`）却遇到鉴权错误时：
+- **永远检查 CPA API Key 配置**。`cliproxyapi/config.yaml` 文件中的 `api-keys` 列表（例如 `['sk-dd0...']`）必须与你发起的请求 Header `Authorization: Bearer <key>` 匹配。
+- **不要混淆 API Key 与 Hermes 框架配置**。如果你在测试一个代理了模型或图像生成的 custom_provider，CPA 作为“底座服务”需要校验其下发的 Key，而并不是 Hermes Web UI 面板的 Key（例如 `~/.hermes-web-ui/.token`）。确认客户端代码里 `Authorization` Header 是填入的 CPA Key。
+- **确认底层 Custom Provider 状态**。如果 CPA 后端配置的供应商挂了、不可用，CPA 可能会直接透传上游的 403 或 503 等报错信息（比如：提示没有权限或暂无适用账户）。此时需查看 CPA 配置所代理的底座服务，并根据日志确认其自身额度及状态。
+
 ## 一键安装脚本
 
 典型安装脚本流程（`~/cliproxyapi` 为目标目录，默认端口 8317）：

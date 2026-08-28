@@ -18,6 +18,7 @@ metadata:
 - 用户要求 Telegram 只显示最终正文、不显示工具调用或中间状态
 - 用户要求中文、可展开 Rich Message、来源链接的群聊总结
 - 用户要求配置 Telegram 网关行为、重启后验证或检查菜单是否生效
+- 用户要求快速更新 Telegram Bot 官方命令菜单与描述（setMyCommands / setMyDescription）
 - 用户要求设置群聊触发规则（@提及/回复门控）
 - 配置群聊不对主页频道提示
 
@@ -93,6 +94,9 @@ curl -s "https://api.telegram.org/bot${TOKEN}/getMyCommands"
 ```
 
 验证结果必须只包含用户指定的命令。网关重启后再次验证，因为网关的 post-connect housekeeping 可能重新调用 `set_my_commands` 并覆盖手工菜单。
+
+### 机器人新命令自动同步铁律 (setMyCommands)
+用户硬性规则：**当给 Telegram 机器人（无论是 Hermes 网关还是独立开发的 Python Telegram Bot 如 emos_bot 等）新增或调整任何命令时，必须确保启动流程（如 PTB `post_init` 或启动脚本）自动调用 `set_my_commands` 将最新命令列表及中文描述同步注册到 Telegram 官方服务器**。严禁仅在代码中注册 handler 却不同步菜单，确保用户端输入 `/` 或点击 `Menu` 时能即时看到带中文提示的最新指令列表。
 
 ## Rich Message 总结规范
 

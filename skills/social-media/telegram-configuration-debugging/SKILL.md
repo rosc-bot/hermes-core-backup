@@ -57,7 +57,15 @@ hermes gateway run --replace
 
 必须区分三种状态：配置已写入、网关已加载、实际命令已通过。最终报告只能声称已由工具验证的状态。不要把“重启命令已执行”直接等同于“权限已恢复”；至少确认网关单实例运行和新的 Telegram 连接日志。
 
-## 参考资料
+## Common Failure Modes & Diagnostics
+
+### 1. "No address associated with hostname" / ConnectionException
+When local logs report Telegram connectivity failing outright with `[ConnectionException] error:failed to lookup address information: No address associated with hostname` inside a module environment (SurfingTile, Clash for Magisk):
+- **Diagnosis:** Proxy routing failed at the DNS resolution layer. The system could not map the domain to an IP before attempting to open the socket.
+- **Root Cause (redir-host):** When using `enhanced-mode: redir-host` without a `default-nameserver` or `fallback` layer, domains that are blocked or not locally cached will fail outright because the local DNS fails to return an IP.
+- **Resolution:** Ensure `default-nameserver` is declared at the top of the `dns` block, `respect-rules: true` is enabled, and the target domain is included in the `force-domain` sniffer list to ensure it's re-resolved remotely instead of failing locally.
+
+### 2. Service Restart Loops
 
 - `references/telegram-admin-id-format.md`：管理员 ID 格式陷阱、源码解析规则和复现验证要点。
 
