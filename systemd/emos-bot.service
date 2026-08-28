@@ -1,0 +1,15 @@
+[Unit]
+Description=EMOS Telegram Check-in Bot Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+Environment="EMOS_BOT_TOKEN=8657174527:AAH9IVAfWEsAafzjLUG2yLPQNjZXN1zVSDE"
+ExecStart=/home/ubuntu/.hermes/hermes-agent/venv/bin/python3 /home/ubuntu/emos_bot.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

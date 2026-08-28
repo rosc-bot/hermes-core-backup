@@ -1,0 +1,16 @@
+[Unit]
+Description=Telegram Group Chat Monitor (user account)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/.hermes/telegram-monitor
+ExecStart=/home/ubuntu/.hermes/telegram-monitor/.venv/bin/python /home/ubuntu/.hermes/telegram-monitor/tg_monitor.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

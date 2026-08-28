@@ -1,0 +1,23 @@
+[Unit]
+Description=Hermes Web UI Dashboard
+After=network.target hermes-gateway.service
+Wants=hermes-gateway.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu
+Environment=NODE_ENV=production
+Environment=PORT=8648
+Environment=BIND_HOST=0.0.0.0
+Environment=HERMES_WEB_UI_HOME=/home/ubuntu/.hermes-web-ui
+EnvironmentFile=/home/ubuntu/.hermes-web-ui/env
+ExecStart=/home/ubuntu/.hermes/node/bin/node /home/ubuntu/.hermes/node/lib/node_modules/hermes-web-ui/dist/server/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/home/ubuntu/.hermes-web-ui/logs/systemd.log
+StandardError=append:/home/ubuntu/.hermes-web-ui/logs/systemd.log
+
+[Install]
+WantedBy=multi-user.target
