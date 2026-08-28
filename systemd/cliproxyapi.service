@@ -1,0 +1,17 @@
+[Unit]
+Description=CLIProxyAPI - CPA Panel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/cliproxyapi
+ExecStart=/home/ubuntu/cliproxyapi/cli-proxy-api -config /home/ubuntu/cliproxyapi/config.yaml
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/ubuntu/cliproxyapi/cpa.log
+StandardError=append:/home/ubuntu/cliproxyapi/cpa.log
+
+[Install]
+WantedBy=multi-user.target
