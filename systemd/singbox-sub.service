@@ -1,0 +1,14 @@
+[Unit]
+Description=Sing-box Subscription Server
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/usr/bin/python3 /home/ubuntu/sub_server.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

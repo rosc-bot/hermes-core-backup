@@ -1,0 +1,68 @@
+proxies:
+  - name: 🇸🇬 新加坡-VLESS-Reality
+    type: vless
+    server: 18.142.49.71
+    port: 39637
+    uuid: b3fa57b2-69cb-44a6-82f0-5621263b74d4
+    network: tcp
+    udp: true
+    tls: true
+    flow: xtls-rprx-vision
+    servername: apple.com
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: WdlaOP_pQJodjRtW3sMKwfAPR7DJt_UE6fEBm8SIJ2c
+      short-id: 13aacc92
+
+  - name: 🇸🇬 新加坡-Hysteria2
+    type: hysteria2
+    server: 18.142.49.71
+    port: 61242
+    password: b3fa57b2-69cb-44a6-82f0-5621263b74d4
+    alpn:
+      - h3
+    sni: www.bing.com
+    skip-cert-verify: true
+    fast-open: true
+
+  - name: 🇸🇬 新加坡-TUIC5
+    type: tuic
+    server: 18.142.49.71
+    port: 29657
+    uuid: b3fa57b2-69cb-44a6-82f0-5621263b74d4
+    password: b3fa57b2-69cb-44a6-82f0-5621263b74d4
+    alpn: [h3]
+    disable-sni: true
+    reduce-rtt: true
+    udp-relay-mode: native
+    congestion-controller: bbr
+    sni: www.bing.com
+    skip-cert-verify: true
+
+  - name: 🇸🇬 新加坡-VMess-WS
+    type: vmess
+    server: 18.142.49.71
+    port: 2082
+    uuid: b3fa57b2-69cb-44a6-82f0-5621263b74d4
+    alterId: 0
+    cipher: auto
+    udp: true
+    tls: false
+    network: ws
+    servername: www.bing.com
+    ws-opts:
+      path: "b3fa57b2-69cb-44a6-82f0-5621263b74d4-vm"
+      headers:
+        Host: www.bing.com
+
+  - name: 🇸🇬 新加坡-AnyTLS
+    type: anytls
+    server: 18.142.49.71
+    port: 12666
+    password: b3fa57b2-69cb-44a6-82f0-5621263b74d4
+    client-fingerprint: chrome
+    udp: true
+    idle-session-check-interval: 30
+    idle-session-timeout: 30
+    sni: www.bing.com
+    skip-cert-verify: true
