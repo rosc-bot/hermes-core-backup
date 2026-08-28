@@ -74,5 +74,8 @@ Then retest. **`BatchMode=yes` in the test is essential** — without it ssh fal
 ## Known servers
 Session-known servers (IP, user, password, hostname) are stored in agent memory. Check memory before asking the user to repeat credentials.
 
+## Oracle Cloud (OCI) Best Practices & Firewall Setup
+See `references/oracle-cloud-setup-and-firewall.md` for complete guidance on OCI instance creation (Ubuntu 22.04 aarch64, Balanced 10 VPU, disable Shielded Instance) and two-layer firewall configuration (OCI Security Lists + iptables-persistent).
+
 ## Automate
 `scripts/ssh-keyless-setup.sh <user@host> <password> [port]` — full end-to-end: install sshpass, generate+push key, enable PubkeyAuthentication if disabled, verify key login.
