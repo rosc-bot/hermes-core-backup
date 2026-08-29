@@ -245,21 +245,18 @@ async def sign_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         sign_index = sign_obj.get("sign_index", 0)
         base_earn = sign_obj.get("earn_point", earned)
 
+        # 签到成功时，以官方接口返回的当日实际签到奖励为准
+        earned = base_earn if base_earn > 0 else (current_carrot - initial_carrot)
+        real_initial_carrot = current_carrot - earned
+
         emos_db.update_account_sign_record(acc["id"], current_carrot)
 
         if success:
             detail_lines = []
             detail_lines.append(f"👤 账号 {idx}: *{acc['emos_username']}* (`{acc['emos_user_id']}`)")
             detail_lines.append(f"  💬 签到寄语: 「*{used_wish}*」")
-            detail_lines.append(f"  🎉 签到结果: 签到成功！(+{max(0, earned)} 🥕)")
+            detail_lines.append(f"  🎉 签到结果: 签到成功！(+{earned} 🥕)")
             
-            # 如果有里程碑额外大奖（如满月奖励 +50 萝卜）
-            if earned > base_earn and base_earn > 0:
-                milestone = earned - base_earn
-                detail_lines.append(f"  🎁 奖励明细: 寄语签到 `+{base_earn}` 🥕 ｜ 连续签到大奖 `+{milestone}` 🥕 🏆")
-            elif earned > 0:
-                detail_lines.append(f"  🎁 奖励明细: 寄语签到 `+{earned}` 🥕 (最高5🥕)")
-
             if continuous_days > 0:
                 rank_str = f" (今日第 `{sign_index}` 位)" if sign_index > 0 else ""
                 detail_lines.append(f"  🔥 连续签到: `{continuous_days}` 天{rank_str}")
@@ -499,25 +496,23 @@ async def auto_daily_sign_job(bot):
                 sign_index = sign_obj.get("sign_index", 0)
                 base_earn = sign_obj.get("earn_point", earned)
 
+                # 签到成功时，以官方接口返回的当日实际签到奖励为准
+                earned = base_earn if base_earn > 0 else (current_carrot - initial_carrot)
+                real_initial_carrot = current_carrot - earned
+
                 emos_db.update_account_sign_record(acc["id"], current_carrot)
 
                 if success:
                     detail_lines = []
                     detail_lines.append(f"👤 账号 {idx}: *{acc['emos_username']}* (`{acc['emos_user_id']}`)")
                     detail_lines.append(f"  💬 签到寄语: 「*{used_wish}*」")
-                    detail_lines.append(f"  🎉 签到结果: 签到成功！(+{max(0, earned)} 🥕)")
+                    detail_lines.append(f"  🎉 签到结果: 签到成功！(+{earned} 🥕)")
                     
-                    if earned > base_earn and base_earn > 0:
-                        milestone = earned - base_earn
-                        detail_lines.append(f"  🎁 奖励明细: 寄语签到 `+{base_earn}` 🥕 ｜ 连续签到大奖 `+{milestone}` 🥕 🏆")
-                    elif earned > 0:
-                        detail_lines.append(f"  🎁 奖励明细: 寄语签到 `+{earned}` 🥕 (最高5🥕)")
-
                     if continuous_days > 0:
                         rank_str = f" (今日第 `{sign_index}` 位)" if sign_index > 0 else ""
                         detail_lines.append(f"  🔥 连续签到: `{continuous_days}` 天{rank_str}")
 
-                    detail_lines.append(f"  💰 萝卜变动: `{initial_carrot}` ➜ `{current_carrot}` | 🎟️ 剩余卡槽: `{slot_remaining}`")
+                    detail_lines.append(f"  💰 萝卜变动: `{real_initial_carrot}` ➜ `{current_carrot}` | 🎟️ 剩余卡槽: `{slot_remaining}`")
                     res_text = "\n".join(detail_lines)
                 else:
                     detail_lines = []
