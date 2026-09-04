@@ -1,13 +1,13 @@
 {
   "apikey-image-gen": {
     "owner": "hermes-web-ui",
-    "source_hash": "c8c993e9c35075655f3e35359fb340fa54567ae06cf6e63c0ccf5ea9ffcd62f0",
-    "installed_hash": "c8c993e9c35075655f3e35359fb340fa54567ae06cf6e63c0ccf5ea9ffcd62f0"
+    "source_hash": "85dc073ce8d2be6facf06eb1489d1a8753347a91b5df4b19bb8b65a4077e7081",
+    "installed_hash": "85dc073ce8d2be6facf06eb1489d1a8753347a91b5df4b19bb8b65a4077e7081"
   },
   "grok-image-to-video": {
     "owner": "hermes-web-ui",
-    "source_hash": "8511834f4c4cda197e449db77b402795ab932a48e86ec8abd5b52b909957e999",
-    "installed_hash": "8511834f4c4cda197e449db77b402795ab932a48e86ec8abd5b52b909957e999"
+    "source_hash": "78000e9aadb2f4bbf1daab6c147116e98de0e3f54f20b331b907cfaafb96170c",
+    "installed_hash": "78000e9aadb2f4bbf1daab6c147116e98de0e3f54f20b331b907cfaafb96170c"
   },
   "hyperframes": {
     "owner": "hermes-web-ui",
@@ -21,8 +21,8 @@
   },
   "minimax-image-to-video": {
     "owner": "hermes-web-ui",
-    "source_hash": "048c08db1c22ba2a2f282d3b335af1981b38fc222f28a2e69eef4e98cb974131",
-    "installed_hash": "048c08db1c22ba2a2f282d3b335af1981b38fc222f28a2e69eef4e98cb974131"
+    "source_hash": "946033b6ee775adb7c3184a51b494d22567da39044af616485dfec66287515e9",
+    "installed_hash": "946033b6ee775adb7c3184a51b494d22567da39044af616485dfec66287515e9"
   },
   "remotion": {
     "owner": "hermes-web-ui",

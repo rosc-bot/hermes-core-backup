@@ -1,33 +1,25 @@
-User env: Linux server (AWS, UTC+8/Beijing), TG (如昔, 8586984520, replies in Chinese). Cron jobs dynamically follow default model (model/provider: null). Daily cron: 01:00 update, 02:00 cleanup, 08:00 emos check-in (to TG 8586984520).
+环境：Linux AWS，UTC+8；常州(电信宽带+联通/电信双卡)；定时任务: 01:00安全检查, 01:30 Hermes更新, 02:00清理；系统更新备份策略已固化: updates.backup_keep=1 (仅保留最新一个 pre-update 备份)；严肃写大项目必须首选 gemini-pro-agent (High) 绝不取巧忽悠。
 §
-Telegram user account monitor running: ✨Echo (@sjdhdhdhdhddhdhd) listens to 54 group chats via Telethon + systemd service (tg-monitor.service). DB at ~/.hermes/telegram-monitor/tg_messages.db. Query tool: tg_query.py. Skill: tg-group-summary.
+Telegram user account monitor running: ✨Echo (@sjdhdhdhdhddhdhd) listens to 54 group chats via Docker Compose (telegram-group-monitor, /home/ubuntu/telegram-monitor-docker). DB at ./data/tg_messages.db. Query tool: tg_query.py. Skill: tg-group-summary.
 §
-User 要求 /model 切换默认永久保存（已配置 model.persist_switch_by_default: true）；--session/--once 仍为单次临时切换。
+User要求/model默认永久生效(--session/--once临时)。kiss(ID:8205552469,小号:8147345662)。
 §
-人🐔局专属白嫖知识库：自动监听入库群-1004495899387含URL消息，分类为AI中转/VPS节点/公益影视Emby/实用工具/源码项目，存储于tg_messages.db的free_resources表(FTS5)。支持“查白嫖 <关键词>”指令本地秒查(0 Token)。
+TG Q图贴纸过塑(/q-api 4888): Docker Compose (quote-api-service, /home/ubuntu/quote-api). 严守原版纯q触发(严禁擅加斜杠/), 支持群聊回复q私聊确认生成。已支持管理员身份/自定义头衔标签识别与TG会员Custom Emoji表情渲染。未授权严禁私自修改已有行为。
 §
-Telegram 群聊人物花名册及全账号ID映射：
-- 爸爸：如昔 (ID: 8586984520)
-- J佬：@kaydenloo / jobr wu (ID: 7898049885)
-- 凯哥：@kai202606 / 🔥凯 (ID: 874691304)
-- 红猫：@lin2553_2 (ID: 6893069075)、@ailinda_2026 (ID: 8885279934)
-- 五哥：@zjw120 (ID: 7996620779)、@zmz1008 (ID: 8903499998)
-- 浮生：@jpnsmzx (ID: 8816894819)、@Joshua Chen (ID: 8450994308)、@xxxanxin (ID: 8490151918)、@muyuanan (ID: 8702625769)
-- Blue：@YvZhen (ID: 8836652620)、@Blue_OvO (ID: 6811476464)
-- L：@mumu1864 (ID: 8933275763)
-- 阿昔：@axixiansheng (ID: 5301711218)
-- 挽歌：@wangekunleo (ID: 1558880868)
-- 汤姆：@jiamian555 (ID: 8710426674)
-- 小新：@sudo_chmod_x / 𝙜𝙤 (ID: 1911121963)
+GitHub API：用户的私有仓库同步优先使用安全 REST API；Oracle `~/.config/github/token`（权限 600）为长期配置，同步后保留，不删除、不清理、不要求重复配置；不复用已暴露 PAT。
 §
-GitHub: rosc-bot (1399373278@qq.com), repo: rosc-bot/hermes-core-backup. Server: 2GB Swap.
+Server SSH: TW(45.207.153.154:58085 root), HK(156.245.245.172:22 root), NL(199.47.241.137:20020/22), Oracle(168.107.67.72); ed25519免密。Swap: 2GB。已删除日本小鸡(161.33.147.125)。台湾专线: TG S5(29759), VLESS-Reality(36709)。
 §
-HK/NL/DEG Servers: ed25519 direct access configured. Default SOCKS/Reality ports. tgsocks/tgpass888.
+自学习与技能维护：群聊总结格式已固化为10大要素结构化Details版，反思与自学习严禁擅改退化。
 §
-自学习与技能维护原则：群聊总结格式已固化为10大要素结构化大档案版（<details><summary>主题N｜具体事件），后台自我反思与自学习程序严禁擅自修改或退化此格式。
+Surfing/Mihomo配置规范: 强制redir-host(保证黑白名单有效), 禁ipv6防转圈, tolerance:50, sniffer覆盖Claude/OpenAI防403, 阿里+腾讯DoH, Emby严格排除港日。未授权绝不擅改。
 §
-User expects the AI to NEVER proactively add unrequested domains/servers to config files. Only add what is explicitly requested.
-§
-emos.best 公益服签到系统：TG 机器人 @qiandao00_bot (systemd emos-bot.service)，对接官方 @emospg_bot OAuth 回跳授权，支持每日 08:00 随机寄语签到(content<=10字冲最高5萝卜)并私聊推送。DB: ~/.hermes/emos_users.db，脚本: ~/.hermes/scripts/emos_sign.py。
+emos.best 公益服签到系统：TG 机器人 @qiandao00_bot 已迁移至 Docker Compose 容器运行 (emos-checkin-bot, /home/ubuntu/emos-bot-docker)，对接官方 @emospg_bot OAuth 回跳授权，支持每日 08:00 随机寄语签到(content<=10字冲最高5萝卜)并私聊推送。DB挂载: ./data/emos_users.db。
 §
 Telegram Bot 开发与维护规范：新增/修改机器人命令时，必须通过 set_my_commands 自动将命令列表同步注册至 Telegram 官方底部命令菜单，确保用户端输入/时自动补全并回显中文说明。
+§
+影视资源投稿Bot(@zhuancun001_bot, tg-media-bot.service): Oracle(168.107.67.72)。库rosc-bot/tg-media-submission-bot。光鸭(-1004387965244),移动(-1004410413711)。WebUI(12082):严禁setInterval自动刷新导致DOM闪缩/状态丢失; 需精准校验真实网盘folder_id才确认为已转存; 移动端防flex截断关键信息; 使用动态二级分类(如华语电影)筛选。群(@shangpian888)静默仅推榜。管理员:8586984520。
+§
+质量严谨与端口铁律：必须真实运行态端到端验证(查依赖/路由/日志)。工具执行策略: approvals.mode=off 全自动免审批放行。AWS已放行端口: TCP[22(SSH), 80(空闲), 443(空闲), 2082(MediaBot WebUI), 3000(空闲), 8317(CPA), 8648(HermesUI), 12666(OpenList), 35087(Xray), 39637(空闲)]; UDP[29657, 61242, 35087]。新服务严禁新开端口，必须直接从空闲端口选用。
+§
+用户偏好：代码修复集中成批完成，在工具调用接近上限前统一测试、提交、同步并重启一次，避免每个小修复重复部署；已运行且未变化的服务无需重复重启。

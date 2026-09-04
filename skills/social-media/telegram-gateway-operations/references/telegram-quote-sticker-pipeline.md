@@ -20,6 +20,10 @@
 4. **真实头像抓取与渲染 (quote-api)**：
    - 确认生成时，调用 Telegram Bot API 的 `get_user_profile_photos(user_id, limit=1)` 获取用户最新头像的 `file_id`，再通过 `get_file` 获得真实下载 URL（`https://api.telegram.org/file/bot<token>/...`）。
    - 将文字、作者名及头像 URL 提交给本地 `quote-api`（`POST /generate.webp`）。
+   - **管理员与身份标签识别 (`senderTag`)**：
+     - 生成贴纸前通过 `get_chat_member(group_chat_id, user_id)` 获取原发言人在群内的真实权限与头衔。
+     - 若群成员设置了专属自定义头衔（`custom_title`），直接提取该头衔；若无头衔但为群主（`creator`），标记为 `群主`；若为管理员（`administrator`），标记为 `管理员`；若为频道身份发言，标记为 `频道`。
+     - 在提交给 `quote-api` 的 message entry 中附带 `senderTag: sender_tag`，使贴纸右上角渲染出身份标签胶囊。
    - **透明气泡规范**：请求参数中使用 `"type": "quote"` 与 `"backgroundColor": "#FFFFFF"`，生成纯净透明背景、带圆角与真实圆形头像的 WebP 贴纸，避免生成带 Telegram 蓝色壁纸底图的矩形图片。
 
 5. **贴纸回传与自动清理**：

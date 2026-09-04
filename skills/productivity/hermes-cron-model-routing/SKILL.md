@@ -138,6 +138,8 @@ json.dump(d,open(p,'w'),indent=2,ensure_ascii=False)
 - 多次执行 `hermes cron run` 会产生多个 `claimed` 记录，但只有最新一次会实际执行。
 - 卡在 `claimed` 状态的旧记录不会自动清除，需要手动清空 `fire_claim` 字段。
 - 修改默认模型后，即使 `model_drift_guard` 已关闭，之前的异步委派调用仍可能使用旧模型。需要清除 `fire_claim` 后重新通过调度器勾子运行。
+- **定时任务防重复解耦原则**：
+  - 避免在不同定时任务中配置相同职能的步骤。例如：当已经配置了专门的「Hermes自动检查并更新」任务（01:30）时，凌晨 01:00 的「每日安全检查和更新」任务中必须剔除 `hermes update --check`，使其专注于 Linux 系统级安全补丁、SUID 异常提权与登录安全审计，避免任务重复执行与冗余报警。
 - 所有面向用户的说明、状态、错误和报告使用中文；代码、命令和原始字段名保持原样。
 
 ## 动态跟随而不重复同步
@@ -192,6 +194,49 @@ hermes config set model.persist_switch_by_default true
 - 内置别名（sonnet/opus/haiku/claude/gpt5 等）走同一持久化规则。
 
 验证方法与源码细节见 `references/model-switch-persistence.md`。
+
+## 精简 /model 选择器：只显示用户配置的服务商
+
+### 现象
+用户在 `/model` 交互菜单里看到一堆**自己从未配置**的服务商按钮（典型如 OpenCode Free、Mixture of Agents），问"我只添加了四个为什么显示这么多"。这是 Hermes 的 `list_picker_providers` 主动追加内置/免费公共项导致的，不是配置错误。
+
+### 修复：`model_catalog.excluded_providers`
+
+在 `~/.hermes/config.yaml` 增加：
+
+```yaml
+model_catalog:
+  excluded_providers:
+    - opencode-free
+    - moa
+```
+
+- `opencode-free` 等免费公共项：配置即可隐藏，立即生效。
+- **`moa`（Mixture of Agents）例外：仅配 excluded_providers 不够！** 源码 `hermes_cli/model_switch.py::list_picker_providers` 在 `list_authenticated_providers`（excluded 过滤）**之后**才调用 `_prepend_moa_picker_provider` 无条件把 MoA 行插到最前，因此配置拦不住它。
+
+### 源码补丁（让 moa 也尊重 excluded_providers）
+
+```python
+# hermes_cli/model_switch.py, list_picker_providers 内（约 4011 行）
+if include_moa and not any(
+    str(e or "").strip().lower() == "moa"
+    for e in (excluded_providers or [])
+):
+    providers = _prepend_moa_picker_provider(providers, current_provider=current_provider)
+```
+
+改完 `python3 -m py_compile` 语法检查 + **重启网关**生效（见 `telegram-gateway-operations` 技能的外部重启方法）。
+
+### 验证
+用脚本直连源码函数、不要手工过滤结果（否则会误报成功）：
+
+```python
+from hermes_cli.model_switch import list_picker_providers
+# 传入 config.yaml 中的 excluded_providers，include_moa=True
+# 断言输出不含 slug 为 'moa' / 'opencode-free' 的项
+```
+
+本机已应用此补丁并验证：菜单仅剩 gemini / true-sota.com / 日日新 / DeepSeek 四项。`hermes update` / `gateway install` 会尝试自动恢复本地修改，升级后需复验该补丁仍在。
 
 ## 参考资料
 

@@ -35,7 +35,24 @@ Both use placeholder credentials. **Replace `API_ID`, `API_HASH`, `PHONE` with r
 - Bot 看不到加入之前的消息
 - 用户账号能看到用户能看到的一切
 
-## 目录结构
+## 生产运行环境（Docker Compose 容器部署）
+
+目前已将用户监听全面迁移至 Docker Compose 容器管理，避免与系统 Python 环境冲突并实现开机自启：
+
+- **容器工程目录**：`/home/ubuntu/telegram-monitor-docker`
+- **容器专属名称**：`telegram-group-monitor` (`container_name: telegram-group-monitor`)
+- **数据持久化挂载**：
+  - 宿主机 `./data/` 挂载至容器内部 `/app/data/`
+  - 核心数据库：`/home/ubuntu/telegram-monitor-docker/data/tg_messages.db`
+  - 宿主机查询软链接保持兼容：`~/.hermes/telegram-monitor/tg_messages.db -> /home/ubuntu/telegram-monitor-docker/data/tg_messages.db`
+- **管理命令**：
+  ```bash
+  cd /home/ubuntu/telegram-monitor-docker
+  sudo docker compose logs -f telegram-group-monitor
+  sudo docker compose restart telegram-group-monitor
+  ```
+
+## 目录结构（宿主机兼容查询层）
 
 ```
 ~/.hermes/telegram-monitor/
@@ -144,7 +161,28 @@ nohup .venv/bin/python tg_monitor.py > tg_monitor.log 2>&1 &
 - 优先使用数据库实际返回的 sender_name、sender_id 和消息文本，不要把未命中的 username 推断成“没有发言”。
 - 用户明确提供的稳定称呼映射应作为别名层使用：`@wangekunleo` 叫“挽歌”；`@lin2553_2` 叫“红猫”；`@jpnsmzx`、`@xxxanxin`、`@Joshua Chen` 是同一人，统一叫“浮生”。
 - 汇报时可将原始标识与别名并列，例如“用户1558880868（挽歌）”，但不要仅凭昵称或相似内容断言身份；多个账号只有在用户明确确认后才合并。
+- **个人与多成员轨迹画像规范**：
+  - 查询特定成员（或对比多个成员）动态时，必须展示完整且对应的 Telegram ID（包括主号、摸奖小号、渡劫备用号等），并严格对照花名册。
+  - 严禁偏袒或单方面详述某一人而略过其他成员；对并列查询的成员必须保持同等颗粒度的深度还原与轨迹梳理。
+  - **输出格式**：查单个成员“在干什么”时使用**紧凑纯文本列表**（`📍 人物名 动态 — 时间范围` 开头，按 `【时间｜群名】事件` 逐条列出，可一眼扫完），**严禁套用群聊总结的 `<details>` 折叠格式**（用户明确纠正过此点）；只有总结群聊消息本身才用折叠块。
+- **同名群匹配**：同名/近名群可能有多个（如“拾光”主群与“拾光𝑬𝒎𝒃𝒚”）。执行“总结XX N h”前先 `tg_query.py --chats` 列出所有候选，按用户语境选定正确 chat_id，再按 `--hours N` 严格拉取，禁止串群或擅自改条数。
 - 按 username 查询无结果时，改用别名、sender_id、关键词和最近消息范围交叉查询；仍无记录只能报告“当前记录未命中”，不能断言对方正在潜水或没有活动。
+
+## 身份核实权威方法（防认错人）
+
+**严禁仅凭昵称或历史发言关联猜测身份**（昵称可改、不同人可同名，本类事故曾把 J佬误认成凯哥、把路人 Jimmy 误认成小新）。唯一可靠来源是 Telethon 会话实体库：
+
+```python
+import sqlite3, os
+# Telethon session 本身是 SQLite，entities 表保存 username→id 权威映射
+scon = sqlite3.connect(os.path.expanduser("~/.hermes/telegram-monitor/tg_monitor.session"))
+rows = scon.execute("SELECT id, username, name, date FROM entities WHERE username=?", (username,)).fetchall()
+# 列：id / hash / username / phone / name / date
+```
+
+流程：以 `username` 匹配 entities 表拿到 `id` → 再以 `id` 反查 `tg_messages.db` 的 messages 表确认发言 → 两个 ID 对上了才认定身份。
+
+维护 `~/.hermes/telegram-monitor/user_alias.py`：`ALIAS_MAP`（用户名/昵称→称呼）+ `ID_MAP`（id→称呼）。发现纠正后**同步更新长期记忆花名册**，避免下次再错。已核实完整映射见 `references/roster-id-map.md`。
 
 ## 注意事项
 

@@ -1,0 +1,17 @@
+services:
+  quote-api-service:
+    build: .
+    container_name: quote-api-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=4888
+      - HOST=0.0.0.0
+    volumes:
+      - ./node_modules:/app/node_modules:ro
+    network_mode: "host"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:4888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

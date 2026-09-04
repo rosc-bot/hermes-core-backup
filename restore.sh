@@ -105,3 +105,18 @@ echo -e "1. 启动 emos 签到机器人:  ${YELLOW}sudo systemctl start emos-bot
 echo -e "2. 启动 Telegram 监听:    ${YELLOW}sudo systemctl start tg-monitor.service${NC}"
 echo -e "3. 启动 Hermes 网关:       ${YELLOW}sudo systemctl start hermes-gateway.service${NC}"
 echo -e "${BLUE}======================================================${NC}\n"
+
+# 8. 还原 Docker 容器编排套件 (可选部署)
+if command -v docker &> /dev/null && [ -d "$SCRIPT_DIR/docker_services" ]; then
+    echo -e "\n${YELLOW}[8/8] 检测到 Docker 环境，准备同步容器化套件...${NC}"
+    mkdir -p "$TARGET_HOME/emos-bot-docker"
+    mkdir -p "$TARGET_HOME/telegram-monitor-docker"
+    mkdir -p "$TARGET_HOME/quote-api"
+    mkdir -p "$TARGET_HOME/bemby"
+
+    rsync -a "$SCRIPT_DIR/docker_services/emos-bot-docker/" "$TARGET_HOME/emos-bot-docker/"
+    rsync -a "$SCRIPT_DIR/docker_services/telegram-monitor-docker/" "$TARGET_HOME/telegram-monitor-docker/"
+    rsync -a "$SCRIPT_DIR/docker_services/quote-api/" "$TARGET_HOME/quote-api/"
+    rsync -a "$SCRIPT_DIR/docker_services/bemby/" "$TARGET_HOME/bemby/"
+    echo -e "${GREEN}✓ Docker 服务配置文件已同步就绪${NC}"
+fi

@@ -19,8 +19,12 @@ usage-statistics-enabled: true
 proxy-url: ""
 passthrough-headers: false
 request-retry: 3
-max-retry-credentials: 0
+max-retry-credentials: 2
 max-retry-interval: 30
+quota-exceeded:
+  switch-project: false
+  switch-preview-model: false
+  antigravity-credits: true
 routing:
   strategy: "round-robin"
   session-affinity: false

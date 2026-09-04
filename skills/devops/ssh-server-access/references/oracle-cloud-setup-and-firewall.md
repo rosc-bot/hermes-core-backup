@@ -29,7 +29,30 @@ sudo iptables -P INPUT ACCEPT && sudo iptables -P FORWARD ACCEPT && sudo iptable
 sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
 ```
 
-## 3. Standard Service Ports Matrix
+## 3. SSH Authentication Troubleshooting on OCI
+When connecting to a newly created OCI instance via SSH:
+- **Public Key vs Private Key**: The `.pub` file is the public key (only uploaded to OCI console at creation time). The private key (without `.pub`) MUST be used by the SSH client. Connecting with `.pub` will fail with `invalid format` or `Permission denied (publickey)`.
+- **Default Usernames (Critical Pitfall)**:
+  - Ubuntu images: `ubuntu` (Logging in as `root` directly fails with publickey refusal/handshake timeout).
+  - Debian images: `admin` or `debian`.
+  - Oracle Linux: `opc`.
+- **`Timed out while waiting for handshake` / `USERAUTH_PK_OK` Hang**:
+  If the log shows `Inbound: Received USERAUTH_PK_OK` followed by `Outbound: Sending USERAUTH_REQUEST (publickey)` and times out:
+  1. Verify the username is `ubuntu` (not `root`).
+  2. Check MTU / packet fragmentation on client network (large pubkey payload drop by ISP/proxies; try disabling local VPN/proxy).
+  3. Avoid buggy embedded web SSH clients; test via standard OpenSSH (`ssh -i key ubuntu@<IP>`).
+- **`SSH shell channel open timed out after 30000 ms`**:
+  Common in Electron-based web/GUI SSH clients (1Panel, Tabby). Occurs when authentication succeeds but the remote PTY allocation hangs because the instance is busy with initial `cloud-init` / `unattended-upgrades`. Wait 2-3 minutes, reboot the instance via OCI console, or connect using native OpenSSH.
+- **SSH Connection Drops & Freezes (Idle Timeout)**:
+  OCI VCN and intermediate ISP NAT firewalls drop idle TCP sessions after 30-60s. Enable keepalive on the server:
+  ```bash
+  sudo bash -c 'cat >> /etc/ssh/sshd_config.d/keepalive.conf << EOF
+  ClientAliveInterval 30
+  ClientAliveCountMax 10
+  EOF' && sudo systemctl restart ssh
+  ```
+
+## 4. Standard Service Ports Matrix
 When migrating or restoring services across servers, standard ports include:
 - `22`: SSH remote admin
 - `80, 443`: Web (HTTP/HTTPS) & reality node masquerade

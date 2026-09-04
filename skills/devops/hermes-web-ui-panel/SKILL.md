@@ -55,6 +55,29 @@ RestartSec=5
 
 `AUTH_TOKEN` 从 `~/.hermes-web-ui/.token` 读取（64 字符），写入 env 文件并 `chmod 600`。安装后 `systemctl enable --now hermes-web-ui.service`。
 
+## 升级与版本更新流程
+
+1. **从 GitHub Release 或 npm 更新**：
+   - 官方仓库：`https://github.com/EKKOLearnAI/hermes-studio`（npm 包名为 `hermes-web-ui`）。
+   - 若直接提供 GitHub Release 链接（含 tar.gz），使用 Hermes 隔离的 Node 环境全局安装：
+     ```bash
+     /home/ubuntu/.hermes/node/bin/npm install -g https://github.com/EKKOLearnAI/hermes-studio/releases/download/<tag>/hermes-web-ui-<version>.tar.gz
+     ```
+   - 若 npm 已同步：`/home/ubuntu/.hermes/node/bin/npm install -g hermes-web-ui@latest`。
+2. **同步 CLI 软链接**：
+   ```bash
+   ln -sf /home/ubuntu/.hermes/node/bin/hermes-web-ui /home/ubuntu/.local/bin/hermes-web-ui
+   ```
+3. **平滑重启服务**：
+   ```bash
+   sudo systemctl restart hermes-web-ui.service
+   ```
+4. **验证状态**：
+   ```bash
+   hermes-web-ui --version
+   curl -sI http://127.0.0.1:8648/
+   ```
+
 ## 常见陷阱
 
 - 服务器重启后面板打不开：几乎总是 hermes-web-ui 没配 systemd，先查 8648 端口，别急着怀疑隧道。

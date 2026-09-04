@@ -61,6 +61,21 @@ In the OCI Instance Creation Console, select the OS image matching the chosen CP
   2. Public IPv4 assignment will automatically illuminate and enable.
   3. For IPv6: Can be added post-boot by visiting OCI Console -> VCN -> IPv6 Prefixes -> Allocate Oracle-allocated IPv6 /56, assigning a /64 to the public subnet, and allocating an IPv6 to the VNIC.
 
-### Pitfall 3: Ingress Firewall Security Lists
+### Pitfall 3: Ingress Firewall Security Lists & No-Comma Syntax Rule
 - By default, OCI security lists only allow incoming traffic on port 22 (SSH).
-- All proxy ports (e.g. 443, 80, SOCKS5, Reality, Web UI 8648) will be dropped at the OCI hypervisor level unless explicitly added to the VCN's **Default Security List -> Ingress Rules** (CIDR: `0.0.0.0/0`, Protocol: All Protocols or specific TCP/UDP port ranges).
+- **OCI Security List Syntax Limitation**: In the OCI Console Ingress Rule form, the \\\"Destination Port Range\\\" field **DOES NOT support comma-separated lists of ports** (e.g. `22,80,443,8648` is an invalid syntax that throws validation errors). It only accepts:
+  1. A single port (e.g. `443`);
+  2. A continuous range with hyphen (e.g. `3000-3001`);
+  3. **Left completely blank**: opens all 1-65535 ports for that protocol.
+- **Best Practice for Personal Lab/Proxy VMs**:
+  - In OCI Console: Leave Destination Port Range blank (or set IP Protocol to `All Protocols`) and rely on internal guest firewall.
+  - Inside the Ubuntu instance: Persist full port acceptance so reboots don't restore OCI's default restrictive iptables rules:
+    ```bash
+    sudo iptables -P INPUT ACCEPT && sudo iptables -P FORWARD ACCEPT && sudo iptables -P OUTPUT ACCEPT && sudo iptables -F
+    sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
+    ```
+
+### Pitfall 4: SSH Authentication Hangs & Timeouts on Fresh Instances
+- **Username Mismatch**: Ubuntu instances on OCI strictly use default username `ubuntu`, NOT `root` (connecting as `root` drops or rejects authentication; Oracle Linux uses `opc`, Debian uses `admin` or `debian`).
+- **Initial Boot Lock (`cloud-init` / unattended upgrades)**: Connecting immediately after creation can cause `SSH shell channel open timed out after 30000 ms` or handshake timeouts while the VM kernel finishes cloud-init provisioning. Wait 2-3 minutes or reboot the instance from the console if persistent.
+- **SSH Keep-Alive**: NAT gateways and cellular carriers drop idle SSH connections after 60 seconds. Add server-side keep-alive to `/etc/ssh/sshd_config.d/keepalive.conf` (`ClientAliveInterval 30`, `ClientAliveCountMax 10`).

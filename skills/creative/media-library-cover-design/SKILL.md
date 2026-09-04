@@ -150,3 +150,11 @@ def render_media_cover(
   - `categories='100'`: General / Cinematic photography only
   - `categories='111'`: All categories
 - **Ensure Anime Aesthetics**: When user asks for anime style, strictly use pure anime illustrated assets (`categories='010'`), featuring vibrant clouds, high contrast sky, or anime heroines/heroes with clean left-bottom dark areas.
+
+## 4. Typography & Graphic Design Pitfalls
+
+- **Avoid Raw Emoji in CJK TTF/TTC Fonts**: Standard CJK font files (like `NotoSansCJK`, `NotoSerifCJK`) do not contain colored emoji glyphs. Passing emojis (e.g. `🦆`, `⚡`, `📱`) into `draw.text()` will render broken missing-glyph boxes (`☒`). Always substitute emojis with geometric vector drawings, stylized SVG-like icons, or glowing indicator dots (`draw.ellipse([x, y, x+r, y+r], fill=(r, g, b))`).
+- **Pure Python Glassmorphism & Atmospheric Lighting**: When external image search / diffusion APIs are unavailable, create dark-mode tech banners via pure Pillow:
+  1. Multi-point atmospheric glow using `ImageFilter.GaussianBlur(80)` over gradient bases.
+  2. Translucent glassmorphism cards (`RGBA` with alpha `180-220`, thin neon outline, and blurred black drop-shadow).
+  3. Strict visual hierarchy: Brand Icon/Badge -> Title -> Subtitle -> Rounded Pill Feature Badges -> Muted Footer Note.

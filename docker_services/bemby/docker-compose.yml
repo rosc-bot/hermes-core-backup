@@ -1,0 +1,11 @@
+services:
+  bemby:
+    image: liveinaus/bemby:latest
+    container_name: bemby
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env

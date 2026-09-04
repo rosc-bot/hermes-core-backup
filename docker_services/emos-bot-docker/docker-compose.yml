@@ -1,0 +1,10 @@
+services:
+  emos-bot:
+    build: .
+    container_name: emos-checkin-bot
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - EMOS_DB_PATH=/app/data/emos_users.db
+    volumes:
+      - ./data:/app/data

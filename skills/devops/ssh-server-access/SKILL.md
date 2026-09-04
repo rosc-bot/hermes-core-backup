@@ -74,6 +74,17 @@ Then retest. **`BatchMode=yes` in the test is essential** — without it ssh fal
 ## Known servers
 Session-known servers (IP, user, password, hostname) are stored in agent memory. Check memory before asking the user to repeat credentials.
 
+## Pitfall: Low-spec LXC/VPS Container Instant-Stop & Boot Loops (e.g. 1GB Disk / 512MB RAM)
+When a micro-container/LXC instance (e.g. shlii.io, NAT VPS with 512MB RAM / 1GB disk) immediately stops after clicking start (`已停止` / shuts down instantly):
+1. **Disk Exhaustion by Heavy Distros (Root Cause #1)**:
+   - Modern systemd-heavy distros like Debian 13 (Trixie) or Ubuntu 24.04 take 700MB–900MB+ uncompressed. During initial boot, systemd journal logs, socket creation in `/run`, and package caches instantly exhaust the 1GB quota (`ENOSPC: No space left on device`).
+   - When PID 1 (`init`/`systemd`) crashes on disk full, the LXC host detects container exit and halts it immediately.
+2. **Systemd / cgroup v2 Host Incompatibility (Root Cause #2)**:
+   - Debian 13 testing requires modern cgroup v2 delegation. Older host kernels crash Debian 13's init process on boot.
+3. **Resolution**:
+   - Reinstall the container with a micro/lightweight OS: **Alpine Linux** (consumes only ~30–50MB disk and <20MB RAM, leaving >90% free space).
+   - If Debian is mandatory, use **Debian 11 (Bullseye) minimal** or **Debian 12 minimal**, never Debian 13 on a 1GB drive.
+
 ## Oracle Cloud (OCI) Best Practices & Firewall Setup
 See `references/oracle-cloud-setup-and-firewall.md` for complete guidance on OCI instance creation (Ubuntu 22.04 aarch64, Balanced 10 VPU, disable Shielded Instance) and two-layer firewall configuration (OCI Security Lists + iptables-persistent).
 

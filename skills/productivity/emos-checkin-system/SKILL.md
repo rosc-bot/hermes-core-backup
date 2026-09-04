@@ -16,11 +16,10 @@ Use this skill when administering, troubleshooting, or enhancing the multi-accou
 
 ## 1. System Architecture & Components
 
-- **Telegram Bot Service**: `emos-bot.service` (systemd unit running `/home/ubuntu/emos_bot.py`).
-- **Database**: SQLite at `/home/ubuntu/.hermes/emos_users.db` (tables: `accounts`, supporting multiple emos accounts per TG user).
-- **Standalone Cron Script**: `/home/ubuntu/.hermes/scripts/emos_sign.py`.
-- **Official Bot**: `@emospg_bot`.
-- **API Base URLs**: `https://api.emos.best` / `https://emos.best`.
+- **Telegram Bot Service**: Docker Compose container `emos-checkin-bot` at `/home/ubuntu/emos-bot-docker` (migrated from systemd `emos-bot.service`, auto-restarts via `restart: unless-stopped`).
+  - *Dependency note*: Ensure `python-telegram-bot[job-queue]` (including `apscheduler` and `pytz`) is installed in the container image to enable `app.job_queue.run_daily`.
+- **Database**: SQLite mounted at `/home/ubuntu/emos-bot-docker/data/emos_users.db` (symlinked/compatible with `~/.hermes/emos_users.db`, tables: `accounts`, supporting multiple emos accounts per TG user).
+- **Standalone Scripts & Old Services**: Legacy `emos_bot.py`, `emos_db.py`, `emos_sign.py`, and `emos-bot.service` have been deprecated and deleted to prevent conflicting double runs.
 
 ## 2. emos.best Official API Endpoints
 
@@ -33,6 +32,14 @@ All authenticated requests require `Authorization: Bearer <token>` and a standar
 | `/api/carrot/history?page_size=N` | `GET` | Retrieve carrot transaction ledger (`items`: `trigger_type_string`, `type` [`earn`/`cost`], `point`, `created_at`). |
 
 ## 3. Telegram OAuth Workflow & Troubleshooting
+
+### 签到寄语池多样化与字数规范
+- **硬性字数限制**：寄语必须 `<= 10` 个字符（代码中必须强制执行 `content[:10]` 截断保护），超出无法冲击每日最高 5 根胡萝卜。
+- **内容风格多样化**：避免使用单一传统的四字成语，应涵盖：
+  1. 欧气玄学/暴击（如 `今天必出5根胡萝卜`、`求求来个5萝卜暴击`、`功德+1 萝卜+5`）；
+  2. 观影/Emby玩家梗（如 `今晚看片绝不转圈`、`原画4K丝滑秒播`、`刮削全部秒匹配`）；
+  3. 搞机/运维日常（如 `服务器永远不宕机`、`延迟低到只有1毫秒`、`今日无bug早点收工`）；
+  4. 俏皮可爱与治愈（如 `今天也要元气满满鸭`、`生活明朗万物可爱`）。
 
 1. **Authorization Redirection URL**:
    `https://t.me/emospg_bot?start=link_tg<telegram_user_id>-<bot_name>`
@@ -52,4 +59,25 @@ emos gives bonus carrots for continuous streaks on top of the daily random wish 
 - **Monthly Milestone (30/90 Days)**: `+50` carrots (`sign_month`).
 - **Yearly Milestone (365 Days)**: `+3000` carrots.
 
-**Calculation Rule**: Total earned = `current_carrot - initial_carrot`. When `earned > base_earn`, the milestone bonus is `earned - base_earn`. Display both base reward and milestone badge in reports.
+**Calculation Rule**:
+- **NEVER** calculate daily rewards by naive cache delta (`current_carrot - cached_initial_carrot`), which yields `+0` if cache was pre-synced or out-of-order.
+- **ALWAYS** extract actual earned points directly from `sign.earn_point`.
+- For total milestone surges, compute `real_initial_carrot = current_carrot - earned` so reports show `real_initial ➜ current_carrot (+earned)`.
+
+## 5. Single Source of Truth for Daily Broadcasts (Deduplication)
+
+Never configure both a Telegram bot background job (like `job_queue.run_daily`) AND an external cron job (like Hermes Cron or system crontab) to trigger the same user sign-ins at 08:00:
+- Double execution triggers official API `422/429` "今日已签到 (重复签到)".
+- The user receives duplicate notifications: one successful summary and one subsequent "重复签到" error message.
+- **Enforcement**: Run daily multi-account sign-in ONLY inside `emos-bot.service` (`job_queue.run_daily`), sending directly via the bot. Keep Hermes Cron free of duplicate check-in jobs.
+
+## 6. Telegram Bot Command Synchronization & UI Standards
+
+1. **Automatic Menu Synchronization (`set_my_commands`)**:
+   - Whenever new commands are introduced (e.g. `/history`, `/info`, `/bind`), they **MUST** be registered automatically during the bot's `post_init` hook using `await application.bot.set_my_commands(commands)` with clear Chinese descriptions.
+   - Never require manual command registration via BotFather when adding bot features.
+2. **Account Token Visibility in `/info`**:
+   - In `/info` account asset cards, always display the account's authorization `token` enclosed in backticks (`` `token` ``) so users can tap-to-copy their credentials directly from Telegram.
+3. **CRITICAL WORKFLOW PRINCIPLE: Ask Before Applying**:
+   - For all bot features, DB schema changes, or config updates, always present proposed changes, options, and trade-offs to the user first. Obtain explicit approval before modifying production scripts or restarting services.
+
